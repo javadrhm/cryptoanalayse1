@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libssl-dev \
     wget \
+    libatlas-base-dev \  # Required for TA-Lib
     && rm -rf /var/lib/apt/lists/*
 
 # Install TA-Lib from source
@@ -21,6 +22,9 @@ RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
     make install && \
     cd .. && \
     rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
+
+# Upgrade pip
+RUN pip install --upgrade pip
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
