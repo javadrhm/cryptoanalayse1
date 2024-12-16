@@ -1,0 +1,7 @@
+yfinance
+pandas
+numpy
+TA-Lib
+fastapi
+uvicorn
+pydantic
