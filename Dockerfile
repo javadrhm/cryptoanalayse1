@@ -1,5 +1,5 @@
 # Use an official Python runtime as the base image
-FROM python:3.11
+FROM python:3.11-slim
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -8,6 +8,9 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     build-essential \
+    gcc \
+    curl \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install TA-Lib
@@ -21,15 +24,16 @@ RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0
     && rm -rf ta-lib \
     && rm ta-lib-0.4.0-src.tar.gz
 
-# Upgrade pip to the latest version
+# Upgrade pip 
 RUN pip install --upgrade pip
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
 
-# Install Python dependencies, including TA-Lib
-RUN pip install --no-cache-dir -r requirements.txt \
-    && pip install TA-Lib
+# Install Python dependencies in a specific order
+RUN pip install numpy==1.23.5 \
+    && pip install TA-Lib==0.4.28 \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Expose the port for FastAPI (default is 8000)
 EXPOSE 8000
