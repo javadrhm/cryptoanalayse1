@@ -23,7 +23,7 @@ RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
     cd .. && \
     rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
 
-# Upgrade pip
+# Upgrade pip to the latest version
 RUN pip install --upgrade pip
 
 # Copy the requirements file into the container
