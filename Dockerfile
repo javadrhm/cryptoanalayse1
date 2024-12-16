@@ -4,7 +4,7 @@ FROM python:3.11
 # Set the working directory inside the container
 WORKDIR /app
 
-# Install system dependencies required for Python packages and TA-Lib
+# Install system dependencies required for Python packages
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     build-essential \
@@ -12,18 +12,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Install TA-Lib from source
-RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
-    tar -xvzf ta-lib-0.4.0-src.tar.gz && \
-    cd ta-lib && \
-    ./configure --prefix=/usr && \
-    make && \
-    make install && \
-    cd .. && \
-    rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
-
 # Upgrade pip to the latest version
 RUN pip install --upgrade pip
+
+# Install TA-Lib using a precompiled wheel
+RUN pip install TA-Lib
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
