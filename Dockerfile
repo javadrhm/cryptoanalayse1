@@ -27,13 +27,21 @@ RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0
 # Upgrade pip 
 RUN pip install --upgrade pip
 
+# Install dependencies
+RUN pip install numpy==1.23.5
+
+# Try installing TA-Lib with specific flags
+RUN pip install TA-Lib==0.4.28 \
+    --no-binary :all: \
+    --global-option=build_ext \
+    --global-option="-I/usr/include" \
+    --global-option="-L/usr/lib"
+
 # Copy the requirements file into the container
 COPY requirements.txt ./
 
-# Install Python dependencies in a specific order
-RUN pip install numpy==1.23.5 \
-    && pip install TA-Lib==0.4.28 \
-    && pip install --no-cache-dir -r requirements.txt
+# Install remaining dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose the port for FastAPI (default is 8000)
 EXPOSE 8000
