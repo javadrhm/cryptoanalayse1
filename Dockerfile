@@ -1,5 +1,5 @@
 # Use an official Python runtime as the base image
-FROM python:3.11-slim
+FROM python:3.11
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libssl-dev \
     wget \
-    libatlas-base-dev \  # Required for TA-Lib
     && rm -rf /var/lib/apt/lists/*
 
 # Install TA-Lib from source
