@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install TA-Lib
+# Download and install TA-Lib C library
 RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz \
     && tar -xzf ta-lib-0.4.0-src.tar.gz \
     && cd ta-lib \
@@ -25,18 +25,24 @@ RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0
     && rm -rf ta-lib \
     && rm ta-lib-0.4.0-src.tar.gz
 
-# Upgrade pip and install numpy first
-RUN pip install --upgrade pip \
-    && pip install numpy==1.23.5
+# Upgrade pip and install dependencies
+RUN pip install --upgrade pip
 
-# Try multiple methods to install TA-Lib
+# Install numpy first
+RUN pip install numpy==1.23.5
+
+# Try alternative TA-Lib installation methods
 RUN pip install --no-cache-dir \
-    --global-option=build_ext \
-    --global-option="-I/usr/local/include" \
-    --global-option="-L/usr/local/lib" \
-    TA-Lib==0.4.28 || \
-    pip install --no-binary :all: TA-Lib==0.4.28 || \
-    pip install git+https://github.com/mrjbq7/ta-lib.git
+    && pip install TA-Lib==0.4.28 \
+    || pip install --no-binary :all: TA-Lib==0.4.28 \
+    || pip install git+https://github.com/mrjbq7/ta-lib.git
+
+# Alternative method using direct source installation
+RUN git clone https://github.com/mrjbq7/ta-lib.git \
+    && cd ta-lib \
+    && python setup.py install \
+    && cd .. \
+    && rm -rf ta-lib
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
