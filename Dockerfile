@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     curl \
     libssl-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install TA-Lib
@@ -24,18 +25,18 @@ RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0
     && rm -rf ta-lib \
     && rm ta-lib-0.4.0-src.tar.gz
 
-# Upgrade pip 
-RUN pip install --upgrade pip
+# Upgrade pip and install numpy first
+RUN pip install --upgrade pip \
+    && pip install numpy==1.23.5
 
-# Install dependencies
-RUN pip install numpy==1.23.5
-
-# Try installing TA-Lib with specific flags
-RUN pip install TA-Lib==0.4.28 \
-    --no-binary :all: \
+# Try multiple methods to install TA-Lib
+RUN pip install --no-cache-dir \
     --global-option=build_ext \
-    --global-option="-I/usr/include" \
-    --global-option="-L/usr/lib"
+    --global-option="-I/usr/local/include" \
+    --global-option="-L/usr/local/lib" \
+    TA-Lib==0.4.28 || \
+    pip install --no-binary :all: TA-Lib==0.4.28 || \
+    pip install git+https://github.com/mrjbq7/ta-lib.git
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
