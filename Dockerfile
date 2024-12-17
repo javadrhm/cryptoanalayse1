@@ -14,14 +14,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install TA-Lib C library
-RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz \
+# Install TA-Lib C library from a precompiled binary
+RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz \
     && tar -xzf ta-lib-0.4.0-src.tar.gz \
-    && cd ta-lib \
-    && ./configure --prefix=/usr \
+    && cd ta-lib/cmake \
+    && cmake .. \
     && make \
     && make install \
-    && cd .. \
+    && cd ../.. \
     && rm -rf ta-lib \
     && rm ta-lib-0.4.0-src.tar.gz
 
@@ -31,18 +31,8 @@ RUN pip install --upgrade pip
 # Install numpy first
 RUN pip install numpy==1.23.5
 
-# Try alternative TA-Lib installation methods
-RUN pip install --no-cache-dir \
-    && pip install TA-Lib==0.4.28 \
-    || pip install --no-binary :all: TA-Lib==0.4.28 \
-    || pip install git+https://github.com/mrjbq7/ta-lib.git
-
-# Alternative method using direct source installation
-RUN git clone https://github.com/mrjbq7/ta-lib.git \
-    && cd ta-lib \
-    && python setup.py install \
-    && cd .. \
-    && rm -rf ta-lib
+# Install TA-Lib using pip
+RUN pip install TA-Lib==0.4.28
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
