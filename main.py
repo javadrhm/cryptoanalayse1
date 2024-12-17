@@ -83,7 +83,8 @@ def analyze_market(df):
         macd, macd_signal, _ = talib.MACD(close_values, fastperiod=12, slowperiod=26, signalperiod=9)
         adx = talib.ADX(high_values, low_values, close_values, timeperiod=14)
         atr = talib.ATR(high_values, low_values, close_values, timeperiod=14)
-        rsi = talib.RSI(close_values, timeperiod=14 bb_upper, bb_middle, bb_lower = talib.BBANDS(close_values, timeperiod=20, nbdevup=2, nbdevdn=2)
+        rsi = talib.RSI(close_values, timeperiod=14 ,bb_upper, bb_middle, bb_lower = talib.BBANDS(close_values, timeperiod=20, nbdevup=2, nbdevdn=2)
+)
     except Exception as e:
         print("Error in indicator calculation:", e)
         raise
