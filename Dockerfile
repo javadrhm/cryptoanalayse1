@@ -18,11 +18,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Download and install TA-Lib C library
 RUN wget http://downloads.sourceforge.net/project/ta-lib/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz \
     && tar -xzf ta-lib-0.4.0-src.tar.gz \
-    && cd ta-lib/cmake \
-    && cmake .. \
+    && cd ta-lib/ \
+    && ./configure --prefix=/usr \
     && make \
     && make install \
-    && cd ../.. \
+    && cd .. \
     && rm -rf ta-lib \
     && rm ta-lib-0.4.0-src.tar.gz
 
