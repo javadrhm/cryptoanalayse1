@@ -55,54 +55,64 @@ def analyze_market(df):
     low_values = df["Low"].values
     volume_values = df["Volume"].values
 
-    # Debugging: Print shapes and check for NaN values
-    print("Close values shape:", close_values.shape)
-    print("High values shape:", high_values.shape)
-    print("Low values shape:", low_values.shape)
-    print("Volume values shape:", volume_values.shape)
+    ma = talib.SMA(close_values, timeperiod=20)
+    ema = talib.EMA(close_values, timeperiod=20)
+    macd, macd_signal, _ = talib.MACD(close_values, fastperiod=12, slowperiod=26, signalperiod=9)
+    adx = talib.ADX(high_values, low_values, close_values, timeperiod=14)
+    atr = talib.ATR(high_values, low_values, close_values, timeperiod=14)
+    rsi = talib.RSI(close_values, timeperiod=14)
+    bb_upper, bb_middle, bb_lower = talib.BBANDS(close_values, timeperiod=20, nbdevup=2, nbdevdn=2)
 
-    if np.any(np.isnan(close_values)):
-        print("NaN values found in close_values")
-    if np.any(np.isnan(high_values)):
-        print("NaN values found in high_values")
-    if np.any(np.isnan(low_values)):
-        print("NaN values found in low_values")
-    if np.any(np.isnan(volume_values)):
-        print("NaN values found in volume_values")
+    donchian_upper = pd.Series(high_values).rolling(window=20).max()
+    donchian_lower = pd.Series(low_values).rolling(window=20).min()
+    donchian_middle = (donchian_upper + donchian_lower) / 2
 
-    # Calculate indicators
-    try:
-        donchian_channels(df)
-        hull_moving_average(df)
-        keltner_channel(df)
-        aroon_indicator(df)
-        anchored_vwap(df)
+    wma_half = talib.WMA(close_values, timeperiod=10)
+    wma_full = talib.WMA(close_values, timeperiod=20)
+    hull_ma = talib.WMA(2 * wma_half - wma_full, timeperiod=int(np.sqrt(20)))
 
-        ma = talib.SMA(close_values, timeperiod=20)
-        ema = talib.EMA(close_values, timeperiod=20)
-        macd, macd_signal, _ = talib.MACD(close_values, fastperiod=12, slowperiod=26, signalperiod=9)
-        adx = talib.ADX(high_values, low_values, close_values, timeperiod=14)
-        atr = talib.ATR(high_values, low_values, close_values, timeperiod=14)
-        rsi = talib.RSI(close_values, timeperiod=14 ,bb_upper, bb_middle, bb_lower = talib.BBANDS(close_values, timeperiod=20, nbdevup=2, nbdevdn=2)
-)
-    except Exception as e:
-        print("Error in indicator calculation:", e)
-        raise
+    atr_values = talib.ATR(high_values, low_values, close_values, timeperiod=20)
+    middle = talib.EMA(close_values, timeperiod=20)
+    keltner_upper = middle + 2 * atr_values
+    keltner_lower = middle - 2 * atr_values
+    keltner_middle = middle
 
-    # Return the analysis results
+    aroon_up = ((20 - (20 - pd.Series(high_values).rolling(window=20).apply(lambda x: np.argmax(x[::-1]) + 1))) / 20) * 100
+    aroon_down = ((20 - (20 - pd.Series(low_values).rolling(window=20).apply(lambda x: np.argmin(x[::-1]) + 1))) / 20) * 100
+
+    cum_vol = np.cumsum(volume_values)
+    cum_vol_price = np.cumsum(close_values * volume_values)
+    anchored_vwap = cum_vol_price / cum_vol
+
+    latest_close = close_values[-1]
+    latest_ma = ma[-1]
+    latest_ema = ema[-1]
+    latest_macd = macd[-1]
+    latest_macd_signal = macd_signal[-1]
+    latest_adx = adx[-1]
+    latest_atr = atr[-1]
+    latest_rsi = rsi[-1]
+    latest_bb_middle = bb_middle[-1]
+    latest_donchian_middle = donchian_middle.iloc[-1]
+    latest_hull_ma = hull_ma[-1]
+    latest_keltner_middle = keltner_middle[-1]
+    latest_aroon_up = aroon_up.iloc[-1]
+    latest_aroon_down = aroon_down.iloc[-1]
+    latest_anchored_vwap = anchored_vwap[-1]
+
     analysis = {
-        "MA": "Bullish" if close_values[-1] > ma[-1] else "Bearish",
-        "EMA": "Bullish" if close_values[-1] > ema[-1] else "Bearish",
-        "MACD": "Bullish" if macd[-1] > macd_signal[-1] else "Bearish",
-        "ADX": "Strong Trend" if adx[-1] > 25 else "Weak Trend",
-        "ATR": "High Volatility" if atr[-1] > np.mean(atr) else "Low Volatility",
-        "RSI": "Overbought" if rsi[-1] > 70 else "Oversold" if rsi[-1] < 30 else "Neutral",
-        "Bollinger Bands": "Bullish" if close_values[-1] > bb_middle[-1] else "Bearish",
-        "Donchian Channels": "Bullish" if close_values[-1] > df["donchian_middle"].iloc[-1] else "Bearish",
-        "Hull MA": "Bullish" if close_values[-1] > df["hull_ma"].iloc[-1] else "Bearish",
-        "Keltner Channel": "Bullish" if close_values[-1] > df["keltner_upper"].iloc[-1] else "Bearish",
-        "Aroon": "Bullish" if df["aroon_up"].iloc[-1] > df["aroon_down"].iloc[-1] else "Bearish",
-        "Anchored VWAP": "Bullish" if close_values[-1] > df["anchored_vwap"].iloc[-1] else "Bearish",
+        "MA": "Bullish" if latest_close > latest_ma else "Bearish",
+        "EMA": "Bullish" if latest_close > latest_ema else "Bearish",
+        "MACD": "Bullish" if latest_macd > latest_macd_signal else "Bearish",
+        "ADX": "Strong Trend" if latest_adx > 25 else "Weak Trend",
+        "ATR": "High Volatility" if latest_atr > np.mean(atr) else "Low Volatility",
+        "RSI": "Overbought" if latest_rsi > 70 else "Oversold" if latest_rsi < 30 else "Neutral",
+        "Bollinger Bands": "Bullish" if latest_close > latest_bb_middle else "Bearish",
+        "Donchian Channels": "Bullish" if latest_close > latest_donchian_middle else "Bearish",
+        "Hull MA": "Bullish" if latest_close > latest_hull_ma else "Bearish",
+        "Keltner Channel": "Bullish" if latest_close > latest_keltner_middle else "Bearish",
+        "Aroon": "Bullish" if latest_aroon_up > latest_aroon_down else "Bearish",
+        "Anchored VWAP": "Bullish" if latest_close > latest_anchored_vwap else "Bearish",
     }
     return analysis
 
