@@ -12,7 +12,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     libssl-dev \
     git \
-    cmake \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and install TA-Lib C library
@@ -33,7 +32,7 @@ RUN pip install --upgrade pip
 RUN pip install numpy==1.23.5
 
 # Install TA-Lib using pip
-RUN pip install TA-Lib==0.4.28
+RUN pip install TA-Lib==0.4.0  # Try a different version
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
