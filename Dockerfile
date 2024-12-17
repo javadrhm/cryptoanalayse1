@@ -32,7 +32,7 @@ RUN pip install --upgrade pip
 RUN pip install numpy==1.23.5
 
 # Install TA-Lib using pip
-RUN pip install TA-Lib==0.4.0  # Try a different version
+RUN pip install TA-Lib==0.4.28  # Use a compatible version
 
 # Copy the requirements file into the container
 COPY requirements.txt ./
