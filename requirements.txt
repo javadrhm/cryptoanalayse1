@@ -1,6 +1,5 @@
-fastapi
-uvicorn
-yfinance
-pandas
-numpy
-pydantic
+Flask==2.3.2
+yfinance==0.2.26
+pandas==1.5.3
+numpy==1.23.5
+TA-Lib==0.4.0
