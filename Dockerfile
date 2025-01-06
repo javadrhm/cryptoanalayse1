@@ -1,30 +1,36 @@
-# Use the latest Python image
-FROM python:latest
+# Use a specific Python base image for stability
+FROM python:3.9-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies for building packages (like TA-Lib)
+# Install system dependencies for building TA-Lib and Python packages
 RUN apt-get update && apt-get install -y \
     build-essential \
     wget \
     tar \
+    python3-dev \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install TA-Lib from source
 RUN wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz && \
     tar -xvzf ta-lib-0.4.0-src.tar.gz && \
     cd ta-lib && \
-    ./configure --prefix=/usr/local && \  # Specify the installation prefix
+    ./configure --prefix=/usr/local && \
     make && \
     make install && \
     cd .. && \
-    rm -rf ta-lib-0.4.0-src.tar.gz ta-lib
+    rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
+
+# Ensure TA-Lib library paths are correctly set
+ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+ENV CFLAGS="-I/usr/local/include"
 
 # Copy the requirements file to the working directory
 COPY requirements.txt .
 
-# Upgrade pip and install dependencies
+# Upgrade pip and install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
