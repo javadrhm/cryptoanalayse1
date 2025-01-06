@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     tar \
     python3-dev \
     libffi-dev \
-    libta-lib0-dev \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Install TA-Lib from source
