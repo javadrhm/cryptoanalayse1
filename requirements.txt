@@ -1,5 +1,6 @@
-Flask
+Flask==2.2.3
 yfinance
 pandas
 numpy
-TA-Lib
+TA-Lib==0.4.0
+
