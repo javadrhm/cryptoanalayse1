@@ -27,4 +27,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set default command to run your Python application
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]
