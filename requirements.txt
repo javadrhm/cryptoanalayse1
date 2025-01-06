@@ -2,5 +2,4 @@ Flask==2.2.3
 yfinance
 pandas
 numpy
-TA-Lib==0.4.0
-
+TA-Lib
