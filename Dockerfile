@@ -1,31 +1,25 @@
 # Start with a basic Python image
 FROM python:3.9-slim
 
-# Install dependencies
+# Install dependencies and curl to install Miniconda
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    wget \
-    tar \
-    libffi-dev \
-    python3-dev \
+    curl \
+    bzip2 \
     && rm -rf /var/lib/apt/lists/*
 
-# Download and install TA-Lib from source
-RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz/download -O ta-lib-0.4.0-src.tar.gz \
-    && tar -xvzf ta-lib-0.4.0-src.tar.gz \
-    && ls -lh \
-    && cd ta-lib \
-    && ./configure --prefix=/usr/local \
-    && make \
-    && make install \
-    && cd .. \
-    && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
+# Install Miniconda
+RUN curl -sSLo miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    bash miniconda.sh -b -p /opt/conda && \
+    rm miniconda.sh && \
+    /opt/conda/bin/conda init bash
 
-# Set environment variables for TA-Lib
-ENV TA_INCLUDE_PATH=/usr/local/include
-ENV TA_LIBRARY_PATH=/usr/local/lib
+# Add conda to PATH
+ENV PATH="/opt/conda/bin:$PATH"
 
-# Install Python dependencies
+# Install TA-Lib using conda
+RUN conda install -c conda-forge ta-lib
+
+# Install Python dependencies from requirements.txt
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
