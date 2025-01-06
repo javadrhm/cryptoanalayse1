@@ -13,12 +13,13 @@ RUN apt-get update && apt-get install -y \
 # Download and install TA-Lib from source
 RUN wget https://sourceforge.net/projects/ta-lib/files/ta-lib/0.4.0/ta-lib-0.4.0-src.tar.gz/download -O ta-lib-0.4.0-src.tar.gz \
     && tar -xvzf ta-lib-0.4.0-src.tar.gz \
-    && cd ta-lib-0.4.0 \
+    && ls -lh \
+    && cd ta-lib \
     && ./configure --prefix=/usr/local \
     && make \
     && make install \
     && cd .. \
-    && rm -rf ta-lib-0.4.0 ta-lib-0.4.0-src.tar.gz
+    && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
 
 # Set environment variables for TA-Lib
 ENV TA_INCLUDE_PATH=/usr/local/include
